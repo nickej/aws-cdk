@@ -2,7 +2,7 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { bockfs } from '@aws-cdk/cdk-build-tools';
-import { callsites, exec, extractDependencies, findUp, findUpMultiple, getTsconfigCompilerOptions } from '../lib/util';
+import { CallSite, callsites, exec, extractDependencies, findDefiningFile, findUp, findUpMultiple, getTsconfigCompilerOptions } from '../lib/util';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -260,5 +260,37 @@ describe('getTsconfigCompilerOptions', () => {
       '--stripInternal false',
       '--target ES2022',
     ].join(' '));
+  });
+});
+
+describe('findDefiningFile', () => {
+  test('should remove file:// prefix', () => {
+    const sites = [
+      {
+        getFileName: jest.fn().mockReturnValue('file:///the/path/NodejsFunction.ts'),
+        getFunctionName: jest.fn().mockReturnValue('NodejsFunction'),
+      } as unknown as CallSite,
+      {
+        getFileName: jest.fn().mockReturnValue('file:///the/path/my-stack.ts'),
+        getFunctionName: jest.fn().mockReturnValue('MySTack'),
+      } as unknown as CallSite,
+    ];
+    const definingFile = findDefiningFile(sites);
+    expect(definingFile).toBe('/the/path/my-stack.ts');
+  });
+
+  test('should work without file:// prefix', () => {
+    const sites = [
+      {
+        getFileName: jest.fn().mockReturnValue('/the/path/NodejsFunction.ts'),
+        getFunctionName: jest.fn().mockReturnValue('NodejsFunction'),
+      } as unknown as CallSite,
+      {
+        getFileName: jest.fn().mockReturnValue('/the/path/my-stack.ts'),
+        getFunctionName: jest.fn().mockReturnValue('MySTack'),
+      } as unknown as CallSite,
+    ];
+    const definingFile = findDefiningFile(sites);
+    expect(definingFile).toBe('/the/path/my-stack.ts');
   });
 });

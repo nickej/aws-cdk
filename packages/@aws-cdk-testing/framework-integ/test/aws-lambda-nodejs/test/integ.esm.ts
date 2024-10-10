@@ -14,6 +14,12 @@ class TestStack extends Stack {
         format: lambda.OutputFormat.ESM,
       },
     });
+
+    new lambda.NodejsFunction(this, 'esm-default-entry', {
+      bundling: {
+        format: lambda.OutputFormat.ESM,
+      },
+    });
   }
 }
 

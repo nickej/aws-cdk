@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import { Bundling } from './bundling';
 import { LockFile } from './package-manager';
 import { BundlingOptions } from './types';
-import { callsites, findUpMultiple, isSdkV2Runtime } from './util';
+import { callsites, findDefiningFile, findUpMultiple, isSdkV2Runtime } from './util';
 import { Architecture } from '../../aws-lambda';
 import * as lambda from '../../aws-lambda';
 import { Annotations, FeatureFlags } from '../../core';
@@ -234,7 +234,7 @@ function findEntry(id: string, entry?: string): string {
     return entry;
   }
 
-  const definingFile = findDefiningFile();
+  const definingFile = findDefiningFile(callsites());
   const extname = path.extname(definingFile);
 
   const tsHandlerFile = definingFile.replace(new RegExp(`${extname}$`), `.${id}.ts`);
@@ -268,25 +268,4 @@ function findEntry(id: string, entry?: string): string {
   }
 
   throw new Error(`Cannot find handler file ${tsHandlerFile}, ${jsHandlerFile}, ${mjsHandlerFile}, ${mtsHandlerFile}, ${ctsHandlerFile} or ${cjsHandlerFile}`);
-}
-
-/**
- * Finds the name of the file where the `NodejsFunction` is defined
- */
-function findDefiningFile(): string {
-  let definingIndex;
-  const sites = callsites();
-  for (const [index, site] of sites.entries()) {
-    if (site.getFunctionName() === 'NodejsFunction') {
-      // The next site is the site where the NodejsFunction was created
-      definingIndex = index + 1;
-      break;
-    }
-  }
-
-  if (!definingIndex || !sites[definingIndex]) {
-    throw new Error('Cannot find defining file.');
-  }
-
-  return sites[definingIndex].getFileName();
 }
