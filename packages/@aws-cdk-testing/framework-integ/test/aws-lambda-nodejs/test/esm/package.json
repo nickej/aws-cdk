@@ -1,0 +1,31 @@
+{
+    "name": "nodejsfunction-esm-test",
+    "description": "ESM specific integration tests for NodejsFunction construct",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+      "build": "cdk-build",
+      "watch": "cdk-watch",
+      "lint": "cdk-lint",
+      "pkglint": "pkglint -f",
+      "test": "cdk-test",
+      "integ": "integ-runner --language javascript",
+      "package": "cdk-package",
+      "build+test": "yarn build && yarn test",
+      "build+extract": "yarn build",
+      "build+test+package": "yarn build+test && yarn package",
+      "build+test+extract": "yarn build+test"
+    },
+    "dependencies": {
+        "@aws-cdk/integ-tests-alpha": "0.0.0",
+        "aws-cdk-lib": "0.0.0",
+        "constructs": "^10.0.0"
+    },
+    "devDependencies": {
+      "@aws-cdk/cdk-build-tools": "0.0.0",
+      "@aws-cdk/integ-runner": "^0.0.0",
+      "@aws-cdk/pkglint": "0.0.0"
+    }
+  }
+  

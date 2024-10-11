@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import { IntegTest } from '@aws-cdk/integ-tests-alpha';
 
-class TestStack extends Stack {
+class TestESMStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -14,6 +14,12 @@ class TestStack extends Stack {
         format: lambda.OutputFormat.ESM,
       },
     });
+  }
+}
+
+class TestESMDefaultEntryStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
 
     new lambda.NodejsFunction(this, 'esm-default-entry', {
       bundling: {
@@ -24,10 +30,11 @@ class TestStack extends Stack {
 }
 
 const app = new App();
-const stack = new TestStack(app, 'cdk-integ-lambda-nodejs-esm');
+const esmStack = new TestESMStack(app, 'cdk-integ-lambda-nodejs-esm');
+const esmDefaultEntryStack = new TestESMDefaultEntryStack(app, 'cdk-integ-lambda-nodejs-esm-default-entry');
 
 new IntegTest(app, 'LambdaNodeJsEsmInteg', {
-  testCases: [stack],
+  testCases: [esmStack, esmDefaultEntryStack],
   diffAssets: true,
 });
 app.synth();
